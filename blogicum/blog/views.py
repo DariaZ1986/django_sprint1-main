@@ -61,7 +61,10 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, id):
-    post = posts[id]
+    try:
+        post = posts[id]
+    except (IndexError, KeyError):
+        return custom_404(request)
     template = 'blog/detail.html'
     context = {'post': post}
     return render(request, template, context)
