@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.http import Http404
+
 
 posts = [
     {
@@ -42,15 +44,12 @@ posts = [
                 укутывал их, чтобы не испортились от дождя.''',
     },
 ]
-
-
-def custom_404(request, exception):
-    return render(request, '404.html', {}, status=404)
+posts_dict = {post['id']: post for post in posts}
 
 
 def index(request):
     template = 'blog/index.html'
-    context = {'posts': posts[::-1]}
+    context = {'posts': list(posts_dict.values())[::-1]}
     return render(request, template, context)
 
 
@@ -61,10 +60,9 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, id):
-    try:
-        post = posts[id]
-    except (IndexError, KeyError):
-        return custom_404(request)
+    post = posts_dict.get(id)
+    if not post:
+        raise Http404("Пост не найден")
     template = 'blog/detail.html'
     context = {'post': post}
     return render(request, template, context)
